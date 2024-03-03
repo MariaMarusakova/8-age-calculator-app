@@ -16,8 +16,7 @@ export default function Home() {
   const [years, setYears] = useState(-1);
   const [months, setMonths] = useState(-1);
 
-
-const AgeCalculator = (enteredValues, days, months, years) => {
+  const ageCalculator = (enteredValues, days, months, years) => {
   const enteredDate = new Date(enteredValues.year, enteredValues.month - 1, enteredValues.day);
   const currentDate = new Date();
 
@@ -52,15 +51,13 @@ const AgeCalculator = (enteredValues, days, months, years) => {
         
         </div>
         </form>
-        <button type="button" onClick={() => AgeCalculator(enteredValues, days, months, years)} className="bg-[hsl(278,68%,11%)] flex h-10 w-72 rounded-md py-1.5 text-lg mb-7 text-[hsl(270,3%,87%)] px-28">Submit</button>
-        <DevTool control={control} />
+        <button type="button" onClick={() => ageCalculator(enteredValues)} className="h-15 w-15 md:ml-96 flex md:h-20 md:w-20 bg-[hsl(259,100%,65%)] p-[5px] md:p-4 rounded-full hover:bg-black">
+        <svg xmlns="http://www.w3.org/2000/svg" width="46" height="44" viewBox="0 0 46 44"><g fill="none" stroke="#FFF" stroke-width="2"><path d="M1 22.019C8.333 21.686 23 25.616 23 44M23 44V0M45 22.019C37.667 21.686 23 25.616 23 44"/></g></svg><span></span></button>
 
-
-
-        <div>
-          <div>{( years === -1 )? '--' : years} years</div>
-          <div>{( months === -1 )? '--' : months} months</div>
-          <div>{( days === -1 )? '--' : days} days</div>
+        <div className="ml-10 mt-14">
+          <div className="font-[800] italic text-8xl text-violet-600">{( years === -1 )? '--' : years} <span className="text-black">years</span></div>
+          <div className="font-[800] italic text-8xl  text-violet-600">{( months === -1 )? '--' : months} <span className="text-black">months</span></div>
+          <div className="font-[800] italic text-8xl  text-violet-600">{( days === -1 )? '--' : days} <span className="text-black">days</span></div>
         </div>
       </div>
 
