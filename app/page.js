@@ -4,15 +4,33 @@ import Image from "next/image";
 import { useState } from "react";
 import { useForm } from 'react-hook-form'
 import { DevTool } from '@hookform/devtools'
-import { AgeCalculator } from "./ageCalculator";
 import moment from "moment";
 
 
 export default function Home() {
   const {control, register, onChange, getValues, watch } = useForm();
   const enteredValues = watch();
-  let calculatedDuration = moment;
-  console.log(calculatedDuration);
+
+  let calculatedDuration = moment();
+  const [days, setDays] = useState(-1);
+  const [years, setYears] = useState(-1);
+  const [months, setMonths] = useState(-1);
+
+
+const AgeCalculator = (enteredValues, days, months, years) => {
+  const enteredDate = new Date(enteredValues.year, enteredValues.month - 1, enteredValues.day);
+  const currentDate = new Date();
+
+
+  let calculatedDifference = moment(enteredDate).diff(currentDate);
+  const calculatedDuration = moment.duration(calculatedDifference);
+  const roundedDays = calculatedDuration.hours() != 0 ? calculatedDuration.days()-1: calculatedDuration.days();
+
+  setMonths(Math.abs(calculatedDuration.months()));
+  setDays(Math.abs(roundedDays));
+  setYears(Math.abs(calculatedDuration.years()));
+
+}
 
 
   return (
@@ -34,13 +52,15 @@ export default function Home() {
         
         </div>
         </form>
-        <button type="button" onClick={calculatedDuration = () => AgeCalculator(enteredValues)} className="bg-[hsl(278,68%,11%)] flex h-10 w-72 rounded-md py-1.5 text-lg mb-7 text-[hsl(270,3%,87%)] px-28">Submit</button>
+        <button type="button" onClick={() => AgeCalculator(enteredValues, days, months, years)} className="bg-[hsl(278,68%,11%)] flex h-10 w-72 rounded-md py-1.5 text-lg mb-7 text-[hsl(270,3%,87%)] px-28">Submit</button>
         <DevTool control={control} />
 
+
+
         <div>
-          <div>{calculatedDuration.years() || '--'} years</div>
-          <div>{calculatedDuration.months() || '--'} months</div>
-          <div>{calculatedDuration.days() || '--'} days</div>
+          <div>{( years === -1 )? '--' : years} years</div>
+          <div>{( months === -1 )? '--' : months} months</div>
+          <div>{( days === -1 )? '--' : days} days</div>
         </div>
       </div>
 
