@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useForm } from 'react-hook-form'
 import { DevTool } from '@hookform/devtools'
 import moment from "moment";
+const { DateTime } = require("luxon");
 
 
 export default function Home({ formData }) {
@@ -19,18 +20,14 @@ export default function Home({ formData }) {
   const [months, setMonths] = useState(-1);
 
   const onSubmit = (data) => {
-    console.log("----------------------------------------");
-    console.log("Form Submitted", data);    
+    const enteredDate = new Date(enteredValues.year, enteredValues.month - 1, enteredValues.day);
+    const reactReturnedDate = enteredDate.toString();
     ageCalculator(enteredValues);
-    console.log("Entered Values", enteredValues);
-
-    console.log("----------------------------------------");
   }
 
-  const ageCalculator = (enteredValues, days, months, years) => {
+  const ageCalculator = (enteredValues) => {
     const enteredDate = new Date(enteredValues.year, enteredValues.month - 1, enteredValues.day);
     const currentDate = new Date();
-
 
     let calculatedDifference = moment(enteredDate).diff(currentDate);
     const calculatedDuration = moment.duration(calculatedDifference);
@@ -49,32 +46,57 @@ export default function Home({ formData }) {
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="mb-10 flex m-10">
             <div>
+         {/*    flex h-10 w-16 md:h-12 md:w-28 rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none 
+				focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mr-2 md:mr-5 md:mb-1 */}
+
               <label className={errors?.day?.message ? ["font-[600] text-xs text-red-700 tracking-widest"] : "font-[600] text-xs text-[hsl(0,1%,44%)] tracking-widest"}>DAY</label>
-              <input id="day" placeholder="DD" className="flex h-10 w-16 md:h-12 md:w-28 rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none 
-				focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mr-2 md:mr-5" type="text"
-                {...register("day", { required: "This field is required",  
-                validate: (value) =>
-                (value < 32 & value > 0) || "Must be a valid day" , onChange: () => onChange })}>
+              <input id="day" placeholder="DD" 
+              className={errors?.day?.message ? 
+              "flex h-10 w-16 md:h-12 md:w-28 rounded-md border-2 px-4 py-1.5 text-sm md:text-lg  border-red-700 mr-2 md:mr-5 md:mb-1":
+              "flex h-10 w-16 md:h-12 md:w-28 rounded-md border-2 px-4 py-1.5 text-sm md:text-lg  ring-offset-background focus-visible:outline-none focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mr-2 md:mr-5 md:mb-1"} 
+              type="text"
+                {...register("day", {
+                  pattern: {
+                    value: /^0[1-9]|[12][0-9]|3[01]/,
+                    message: "Must be a valid day",
+                  },
+                  required: "This field is required",
+                  validate: (day) => {
+                    const date = DateTime.local(
+                      Number(getValues("year")),
+                      Number(getValues("month")),
+                      Number(day)
+                    );
+                    return date.c !== null || "Must be a valid date";
+                  }, 
+                  onChange: () => onChange
+                })}>
               </input>
-              <p className='text-red-700 text-xs'>{errors.day?.message}</p>
+              <p className='text-red-700 text-[9px] md:text-[11px] italic w-12 md:w-28'>{errors.day?.message}</p>
 
             </div>
             <div>
-              <label className={errors?.month?.message ? ["font-[600] text-xs text-red-700 tracking-widest"] : "font-[600] text-xs text-[hsl(0,1%,44%)] tracking-widest"}>MONTH</label>
-              <input name="month" placeholder="MM" className="flex h-10 w-16 md:h-12 md:w-28 rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none 
-				focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mr-4 md:mr-5"
-                {...register("month", { required: "This field is required",  validate: (value) =>
-                (value < 13 & value > 0) || "Must be a valid month", onChange: () => onChange })}></input>
-              <p className='text-red-700 text-xs'>{errors.month?.message}</p>
+              <label className={errors?.month?.message || errors?.day?.message === "Must be a valid date" ? "font-[600] text-xs text-red-700 tracking-widest" : "font-[600] text-xs text-[hsl(0,1%,44%)] tracking-widest"}>MONTH</label>
+              <input name="month" placeholder="MM" className={errors?.month?.message || errors?.day?.message === "Must be a valid date"? 
+              "flex h-10 w-16 md:h-12 md:w-28 rounded-md border-2 px-4 py-1.5 text-sm md:text-lg border-red-700 mr-2 md:mr-5 md:mb-1":
+              "flex h-10 w-16 md:h-12 md:w-28 rounded-md border-2 px-4 py-1.5 text-sm md:text-lg ring-offset-background focus-visible:outline-none focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mr-2 md:mr-5 md:mb-1"} 
+              {...register("month", {
+                  required: "This field is required", validate: (value) =>
+                    (value < 13 & value > 0) || "Must be a valid month", onChange: () => onChange
+                })}></input>
+              <p className='text-red-700 text-[9px] md:text-[11px] italic w-16 md:w-28'>{errors.month?.message}</p>
 
             </div><div>
-              <label className={errors?.year?.message ? ["font-[600] text-xs text-red-700 tracking-widest"] : "font-[600] text-xs text-[hsl(0,1%,44%)] tracking-widest"}>YEAR</label>
-              <input name="year" placeholder="YYYY" className="flex h-10 w-20 md:h-12 md:w-36 rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none 
-				focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                {...register("year", { required: "This field is required", onChange: () => onChange, 
-                validate: (value) =>
-                value < 2025 || "Must be in the past" })}></input>
-              <p className='text-red-700 text-xs'>{errors.year?.message}</p>
+              <label className={errors?.year?.message || errors?.day?.message === "Must be a valid date" ? "font-[600] text-xs text-red-700 tracking-widest" : "font-[600] text-xs text-[hsl(0,1%,44%)] tracking-widest"}>YEAR</label>
+              <input name="year" placeholder="YYYY" className={errors?.year?.message || errors?.day?.message === "Must be a valid date"? 
+              "flex h-10 w-20 md:h-12 md:w-28 rounded-md border-2 px-4 py-1.5 text-sm md:text-lg border-red-700 mr-2 md:mr-5 md:mb-1":
+              "flex h-10 w-20 md:h-12 md:w-28 rounded-md border-2 px-4 py-1.5 text-sm md:text-lg ring-offset-background focus-visible:outline-none focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mr-2 md:mr-5 md:mb-1"} 
+              {...register("year", {
+                  required: "This field is required", onChange: () => onChange,
+                  validate: (value) =>
+                    value < 2025 || "Must be in the past"
+                })}></input>
+              <p className='text-red-700 text-[11px] italic w-16 md:w-28'>{errors.year?.message}</p>
 
             </div>
           </div>
